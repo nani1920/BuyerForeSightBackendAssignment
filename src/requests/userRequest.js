@@ -2,6 +2,7 @@
 
 const { body } = require("express-validator");
 const { param } = require("express-validator");
+const { query } = require("express-validator");
 const validateRequest = require("../middleware/validateRequests");
 
 const userPostRequest = [
@@ -22,8 +23,8 @@ const userPostRequest = [
     .exists()
     .bail()
     .withMessage("Phone is required")
-    .isLength({ min: 10 })
-    .withMessage("Phone must be at least 10 characters")
+    .isLength({ min: 10, max: 10 })
+    .withMessage("Phone must be 10 characters")
     .isMobilePhone()
     .withMessage("Phone is invalid"),
   body("company")
@@ -89,4 +90,29 @@ const userUpdateValidation = [
   validateRequest,
 ];
 
-module.exports = { userPostRequest, userIdValidation, userUpdateValidation };
+const getUsersFilterValidation = [
+  query("search").optional(),
+  query("order")
+    .optional()
+    .isIn(["asc", "desc"])
+    .withMessage("Order must be either asc or desc"),
+  query("sort").optional(),
+  query("limit")
+    .optional()
+    .isInt({ gt: 0 })
+    .withMessage("Limit must be a positive integer")
+    .toInt(),
+  query("offset")
+    .optional()
+    .isInt({ gt: -1 })
+    .withMessage("Offset must be a positive integer")
+    .toInt(),
+  validateRequest,
+];
+
+module.exports = {
+  userPostRequest,
+  userIdValidation,
+  userUpdateValidation,
+  getUsersFilterValidation,
+};

@@ -12,10 +12,20 @@ const createProspect = async (data) => {
   }
 };
 
-const getAllProspects = async () => {
+const getAllProspects = async (data) => {
   try {
+    const {
+      limit = 20,
+      offset = 0,
+      search,
+      sort = "name",
+      order = "asc",
+    } = data;
     const db = getDb();
-    const query = `select * from prospects`;
+    const query = `select * from prospects where name like '%${search}%' 
+    order by ${sort} ${order}
+    limit ${limit} 
+    offset ${offset}`;
     return await db.all(query);
   } catch (e) {
     console.log(e);

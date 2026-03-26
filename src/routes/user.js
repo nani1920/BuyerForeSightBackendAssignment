@@ -6,7 +6,11 @@ const express = require("express");
 const Router = express.Router();
 
 Router.post("/", userRequestValidator.userPostRequest, userController.postUser);
-Router.get("/", userController.getUsers);
+Router.get(
+  "/",
+  userRequestValidator.getUsersFilterValidation,
+  userController.getUsers,
+);
 
 Router.get(
   "/:id",

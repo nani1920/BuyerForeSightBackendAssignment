@@ -5,7 +5,7 @@ const postUser = async (req, res) => {
   try {
     const data = req.body;
     const userExist = await userRepo.getProspectByMail(data.email);
-    console.log("user:", userExist);
+
     if (userExist) {
       return res.status(400).json({
         success: false,
@@ -14,7 +14,7 @@ const postUser = async (req, res) => {
     }
     const response = await userRepo.createProspect(data);
     if (response === undefined) {
-      return res.status(400).json({
+      return res.status(500).json({
         success: false,
         message: "failed to create user, retry after sometime",
       });
@@ -26,21 +26,32 @@ const postUser = async (req, res) => {
     });
   } catch (e) {
     console.log(e);
+    res.status(500).json({ success: false, message: "internal server error" });
   }
 };
 
 const getUsers = async (req, res) => {
   try {
-    const response = await userRepo.getAllProspects();
+    const { search, sort, order, limit, offset } = req.query;
+
+    const data = {
+      search: search ? search : "",
+      sort: sort ? sort : "name",
+      order: order ? order : "asc",
+      limit: limit ? limit : 20,
+      offset: offset ? offset : 0,
+    };
+    const response = await userRepo.getAllProspects(data);
     if (response.length === 0 || response === undefined) {
-      return res.status(400).json({
+      return res.status(404).json({
         success: false,
         message: "No users found",
       });
     }
-    res.status(200).json(response);
+    res.status(200).json({ success: true, data: response });
   } catch (e) {
     console.log(e.message);
+    res.status(500).json({ success: false, message: "internal server error" });
   }
 };
 
@@ -49,14 +60,15 @@ const getUserById = async (req, res) => {
     const { id } = req.params;
     const user = await userRepo.getProspectById(id);
     if (user === undefined) {
-      return res.status(400).json({
+      return res.status(404).json({
         success: false,
         message: "user not found",
       });
     }
-    res.status(200).json(user);
+    res.status(200).json({ success: true, user });
   } catch (e) {
     console.log(e.message);
+    res.status(500).json({ success: false, message: "internal server error" });
   }
 };
 
@@ -72,7 +84,7 @@ const updateUserById = async (req, res) => {
     }
     const userExist = await userRepo.getProspectById(id);
     if (userExist === undefined) {
-      return res.status(400).json({ success: false, message: "No User Found" });
+      return res.status(404).json({ success: false, message: "No User Found" });
     }
     const data = {
       name: updatedData.name ? updatedData.name : userExist.name,
@@ -83,7 +95,7 @@ const updateUserById = async (req, res) => {
     const user = await userRepo.updateProspectById(id, data);
     if (user === undefined) {
       return res
-        .status(400)
+        .status(500)
         .json({ success: false, message: "no user Updated" });
     }
     res.status(200).json({
@@ -92,7 +104,8 @@ const updateUserById = async (req, res) => {
       data: user,
     });
   } catch (e) {
-    console.log(e);
+    console.log(e.message);
+    res.status(500).json({ success: false, message: "internal server error" });
   }
 };
 
@@ -101,14 +114,17 @@ const deleteUserById = async (req, res) => {
     const { id } = req.params;
 
     const user = await userRepo.getProspectById(id);
-    console.log(user);
+
     if (user === undefined) {
-      return res.status(400).json({ success: false, message: "No User Found" });
+      return res.status(404).json({ success: false, message: "No User Found" });
     }
     await userRepo.deleteProspectById(id);
-    res.status(200).json({ success: true, data: "user Deleted Successfully" });
+    res
+      .status(200)
+      .json({ success: true, data: "user Deleted Successfully", user });
   } catch (e) {
-    console.log(e);
+    console.log(e.message);
+    res.status(500).json({ success: false, message: "internal server error" });
   }
 };
 
