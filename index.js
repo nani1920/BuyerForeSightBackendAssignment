@@ -32,6 +32,10 @@ app.use((err, req, res, next) => {
   res.status(500).json({ success: false, message: "Internal Server Error" });
 });
 
+app.get("/", (req, res) => {
+  res.send("server is running")
+})
+
 app.use("/api/", apiLimiter);
 
 app.use("/api/user", userRoute);
