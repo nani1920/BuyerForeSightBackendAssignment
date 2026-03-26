@@ -18,6 +18,30 @@ This backend API provides the core functionality for managing "prospects" (leads
 *   **express-rate-limit:** To protect the API from brute-force/DOS attacks
 *   **dotenv:** For managing environment variables
 
+## Project Structure
+
+```text
+BuyerForeSightBackendAssignment/
+├── index.js               # Application entry point and server setup
+├── .env                   # Environment variables (not tracked by Git)
+├── package.json           # Dependencies and project scripts
+├── lib/
+│   └── db/
+│       ├── dbConnect.js   # SQLite connection and initialization
+│       └── prospect_leads.db # SQLite database file
+└── src/
+    ├── controllers/       # Request handlers (logic for each route)
+    │   └── userController.js
+    ├── middleware/        # Custom middleware (e.g., validation handler)
+    │   └── validateRequests.js
+    ├── repositories/      # Data access layer (SQL queries)
+    │   └── userRepository.js
+    ├── requests/          # Validation rules using express-validator
+    │   └── userRequest.js
+    └── routes/            # API route definitions
+        └── user.js
+```
+
 ## Features
 
 *   **Prospect Management:**
@@ -62,6 +86,12 @@ To set up and run the API locally:
 2. The API will be accessible at `http://localhost:3000` (or the port specified in your `.env` file).
 
 3.  **API Endpoints:**
+
+    *   **Base:**
+
+        ### Health Check
+        **GET** `/`
+        Returns a simple "server is running" message to verify the API is online.
 
     *   **Users (Prospects):**
 
