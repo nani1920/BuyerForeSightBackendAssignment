@@ -85,135 +85,137 @@ To set up and run the API locally:
     (Uses `nodemon` for automatic restarts)
 2. The API will be accessible at `http://localhost:3000` (or the port specified in your `.env` file).
 
-3.  **API Endpoints:**
+## API Endpoints
 
-    *   **Base:**
+### 🟢 Base
 
-        ### Health Check
-        **GET** `/`
-        Returns a simple "server is running" message to verify the API is online.
+#### `GET /`
+**Summary:** Health Check
+**Description:** Returns a simple "server is running" message to verify the API is online.
 
-    *   **Users (Prospects):**
+| Code | Description | Sample Response |
+| :--- | :---------- | :-------------- |
+| 200 | OK | `"server is running"` |
 
-        ### Create Prospect Endpoint
+---
 
-        **POST** `/api/user/`
+### 👤 Users (Prospects)
 
-        #### Description:
-        This endpoint allows creating a new prospect by providing their `name`, `email`, `phone`, and `company`. It validates that the email is unique and the data formats are correct.
+#### `POST /api/user/`
+**Summary:** Create Prospect
+**Description:** Create a new prospect after validating unique email and data formats.
 
-        #### Request Format:
+**Request Body (JSON):**
+| Name | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| name | string | Yes | Min 3 characters |
+| email | string | Yes | Unique, valid email format |
+| phone | string | Yes | Exactly 10 digits |
+| company | string | Yes | Min 3 characters |
 
-        **URL**: `/api/user/`
+**Responses:**
+| Code | Description | Sample Response |
+| :--- | :---------- | :-------------- |
+| 201 | Created | `{"success":true,"data":"user created Successfully","user":{...}}` |
+| 400 | Bad Request | `{"success":false,"message":"user already Exists with this Mail"}` |
+| 500 | Server Error | `{"success":false,"message":"internal server error"}` |
 
-        **Method**: `POST`
+---
 
-        **Request Body (JSON)**:
-        ```json
-        {
-            "name": "Jane Doe",
-            "email": "jane.doe@example.com",
-            "phone": "9876543210",
-            "company": "Tech Corp"
-        }
-        ```
-        * `name` (required, string): Min 3 characters.
-        * `email` (required, string): Must be a valid, unique email.
-        * `phone` (required, string): Must be exactly 10 digits.
-        * `company` (required, string): Min 3 characters.
+#### `GET /api/user/`
+**Summary:** Get All Prospects
+**Description:** Retrieves a list of prospects with support for filtering and pagination.
 
-        #### Expected Responses:
+**Query Parameters:**
+| Name | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| search| string | "" | Filter by name |
+| sort | string | "name" | Field to sort by |
+| order | string | "asc" | Sort order (`asc`, `desc`) |
+| limit | integer| 20 | Records per page |
+| offset| integer| 0 | Records to skip |
 
-        *   **201 Created**: Prospect created successfully.
-            ```json
-            {
-                "success": true,
-                "data": "user created Successfully",
-                "user": { ... }
-            }
-            ```
-        *   **400 Bad Request**: Validation failed or user already exists.
-            ```json
-            {
-                "success": false,
-                "message": "user already Exists with this Mail"
-            }
-            ```
+**Responses:**
+| Code | Description | Sample Response |
+| :--- | :---------- | :-------------- |
+| 200 | OK | `{"success":true,"data":[{...}]}` |
+| 404 | Not Found | `{"success":false,"message":"No users found"}` |
+| 500 | Server Error | `{"success":false,"message":"internal server error"}` |
 
-        ### Get All Prospects Endpoint
+---
 
-        **GET** `/api/user/`
+#### `GET /api/user/:id`
+**Summary:** Get Prospect by ID
+**Description:** Retrieves detailed information for a specific prospect.
 
-        #### Description:
-        Retrieves all prospects. Supports searching, sorting, and pagination via query parameters.
+**Path Parameters:**
+| Name | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| id | integer | Yes | Numeric ID of the prospect |
 
-        #### Request Format:
+**Responses:**
+| Code | Description | Sample Response |
+| :--- | :---------- | :-------------- |
+| 200 | OK | `{"success":true,"user":{...}}` |
+| 404 | Not Found | `{"success":false,"message":"user not found"}` |
 
-        **URL**: `/api/user/`
+---
 
-        **Method**: `GET`
+#### `PUT /api/user/:id`
+**Summary:** Update Prospect
+**Description:** Updates an existing prospect's details.
 
-        **Query Parameters:**
-        * `search` (optional): Filter by name.
-        * `sort` (optional): Field to sort by (default: `name`).
-        * `order` (optional): `asc` or `desc` (default: `asc`).
-        * `limit` (optional): Number of records (default: 20).
-        * `offset` (optional): Number of records to skip (default: 0).
+**Path Parameters:**
+| Name | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| id | integer | Yes | Numeric ID of the prospect |
 
-        #### Expected Responses:
-        * **200 OK**: Returns an array of prospects.
-        * **404 Not Found**: If no prospects match the criteria.
+**Request Body (JSON):**
+| Name | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| name | string | No | Updated name |
+| email | string | No | Updated email |
+| phone | string | No | Updated phone |
+| company | string | No | Updated company |
 
-        ### Get Prospect by ID Endpoint
+**Responses:**
+| Code | Description | Sample Response |
+| :--- | :---------- | :-------------- |
+| 200 | OK | `{"success":true,"message":"User Updated Successfully","data":{...}}` |
+| 400 | Bad Request | `{"success":false,"message":"No Data Provided to update"}` |
+| 404 | Not Found | `{"success":false,"message":"No User Found"}` |
 
-        **GET** `/api/user/:id`
+---
 
-        #### Description:
-        Retrieves a specific prospect by its numeric ID.
+#### `DELETE /api/user/:id`
+**Summary:** Delete Prospect
+**Description:** Removes a prospect record from the database.
 
-        #### Request Format:
+**Path Parameters:**
+| Name | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| id | integer | Yes | Numeric ID of the prospect |
 
-        **URL**: `/api/user/:id`
-        **Method**: `GET`
+**Responses:**
+| Code | Description | Sample Response |
+| :--- | :---------- | :-------------- |
+| 200 | OK | `{"success":true,"data":"user Deleted Successfully","user":{...}}` |
+| 404 | Not Found | `{"success":false,"message":"No User Found"}` |
 
-        #### Expected Responses:
-        * **200 OK**: Returns the prospect data.
-        * **404 Not Found**: If the prospect is not found.
+---
 
-        ### Update Prospect Endpoint
+### 📦 Schemas
 
-        **PUT** `/api/user/:id`
-
-        #### Description:
-        Updates an existing prospect's information.
-
-        #### Request Format:
-
-        **URL**: `/api/user/:id`
-        **Method**: `PUT`
-
-        **Request Body (JSON)**: (All fields optional)
-        ```json
-        {
-            "name": "Updated Name",
-            "email": "new.email@example.com"
-        }
-        ```
-
-        #### Expected Responses:
-        * **200 OK**: Prospect updated successfully.
-        * **404 Not Found**: If the prospect is not found.
-
-        ### Delete Prospect Endpoint
-
-        **DELETE** `/api/user/:id`
-
-        #### Description:
-        Deletes a prospect record from the database.
-
-        #### Expected Responses:
-        * **200 OK**: Prospect deleted successfully.
-        * **404 Not Found**: If the prospect is not found.
+#### Prospect
+| Name | Type | Description |
+| :--- | :--- | :---------- |
+| id | integer | Auto-incrementing primary key |
+| name | string | Name of the prospect |
+| email | string | Unique email address |
+| phone | string | 10-digit phone number |
+| company | string | Company associated with the prospect |
+| created_at | datetime | Timestamp of creation |
+| updated_at | datetime | Timestamp of last update |
 
 ## Deployment
 
